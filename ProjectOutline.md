@@ -1,0 +1,4 @@
+ function and loop inside
+ parameter: attack frequency, if A gene is dominat or recessive, initial number males, number of males with A gene,  initial number females, number of females with A gene, number of individuals that are warned,prob of getting killed when warner, prob of getting killed when non warner and not hidding, prob of killed if hidding that  dominant/recessive, birth rate, death rate, carrying capacity, death rate of pop after carrying capacity(linear equation), number of generations to simulate
+ prob use data frame to construc initial population 
+ return:  size of pop( number of people in pop), number of alturistic individuals, data fram that has info for each generation
