@@ -1,4 +1,56 @@
- function and loop inside
- parameter: attack frequency, if A gene is dominat or recessive, initial number males, number of males with A gene,  initial number females, number of females with A gene, number of individuals that are warned,prob of getting killed when warner, prob of getting killed when non warner and not hidding, prob of killed if hidding that  dominant/recessive, birth rate, death rate, carrying capacity, death rate of pop after carrying capacity(linear equation), number of generations to simulate
- prob use data frame to construc initial population 
- return:  size of pop( number of people in pop), number of alturistic individuals, data fram that has info for each generation
+# BioSim project : creating a simulation to test the benefits of alturistic behaviour in a population
+
+#### Put into function : 
+
+* if gene is recessive or dominant - `dominant = FALSE`
+* initial numbers:
+    * initial males - `initial_males = 100`
+    * A males - `initial_alt_males = 10`
+    * inital females - `inital_females = 100`
+    * A females - `initial_atl_female = 10`
+* birth rate - `birth_rate_natural = .05`
+* death rate - `death_rate_natural = .02`
+* attack frequency - `prob_attack = .2`
+* number of individuals that are warned - `number_warned = 10`
+* prob of getting killed when warner - `warner_death_prob = .7`
+* prob of getting killed when non warner and not hidding - `nonwarner_death_prob = .2`
+* prob of killed if hidding - `hider_death_prob = 0` 
+* number of generations to simulate - `sim_gens =2` 
+* carrying capacity - `capacity = 2000`
+
+ 
+#### General Stucture of function:
+
+* set up:
+    * data structure to hold info about pop in each generation
+    * Matrix relationship
+        * determines the relationships between rabbitts (mother, father, offspring, sibling, etc)
+    * Population : data frame about population
+        * Each row gives info on population as a whole at the begining of the generation
+        * collums : 
+            * males, 
+            * females, 
+            * atl_males, 
+            * alt_ female
+    * Individual : data frame about individual rabbits
+        * each row is a single rabbit
+        *colums : 
+            * id, 
+            * sex ("F","M"), 
+            * allele1 (0,1), 
+            * allele2 (0,1)
+            * mother
+            * father
+            * ? warner
+
+* loop :
+    * have non attack deaths
+    * make rabbits reproduce
+        * relationship matrix is used here 
+    * determine if there is an attack and process it
+ 
+#### Return: 
+
+* size of pop( number of people in pop) at each generation, 
+* number of alturistic individuals at each generation, 
+* info to make graph (user has option to make graph or not)
