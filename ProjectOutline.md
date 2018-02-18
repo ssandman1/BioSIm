@@ -34,7 +34,7 @@
             * alt_ female
     * Individual : data frame about individual rabbits
         * each row is a single rabbit
-        *colums : 
+        * colums : 
             * id, 
             * sex ("F","M"), 
             * allele1 (0,1), 
@@ -54,3 +54,16 @@
 * size of pop( number of people in pop) at each generation, 
 * number of alturistic individuals at each generation, 
 * info to make graph (user has option to make graph or not)
+
+
+Matrix  relMat[a,b]
+relationship level between rabbut a and b
+rows and collums are rabbit IDs
+1 cell in matrix stands for 
+rel(new,old) = .5*relationship(father of new,old)(.5mothernew,old)
+equation doesnt work for oneself
+have vector w all ids of previous rabbits 
+when rabitts killed just wipe out rows and collum that they are
+live<- relMat[live,live]
+
+Mating Function :
