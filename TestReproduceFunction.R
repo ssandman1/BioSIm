@@ -1,23 +1,30 @@
 #### REPRODUCE TEST FUNCTION
-# library(tidyverse)
+
+library(tidyverse)
+matingcouples<- 4
 average_litter_size<- 5 
 actualsize<- rpois(1,average_litter_size) 
 
 allfemales<-subset(individuals,sex=="F") ## all females from d.f.
 n<-nrow(allfemales)
-df <- allfemales[sample(1:n, size = 1, replace = FALSE), ] 
+femaleMate <- allfemales[sample(1:n, size = matingcouples, replace = FALSE), ] 
 ##randomly picking 1 female from data frame to be mom 
-momsID<-df$id
+momsID<-femaleMate$id
 
 
 allmales<-subset(individuals,sex=="M") ### selecting all males
 ### from d.f.
 n<-nrow(allmales)
-maleMate <- allmales[sample(1:n, size = 1, replace = FALSE), ]
+maleMate <- allmales[sample(1:n, size = matingcouples, 
+                            replace = TRUE), ]
 ### ramdomly pick 1 male
 dadsID<-maleMate$id ### getting id of the male that was picked
 
-
+for(i in 1:length(momsID)){
+  actualsize<- rpois(1,average_litter_size) 
+  makelitter(momId = momsID[i],dadId = dadsID[i],
+             actualsize = actualsize)
+}
 
 
 
@@ -62,6 +69,8 @@ makelitter(momId = momsID,
 addToPop <- function(litter, currentPop) {
   rbind(currentPop, litter)
 }
+
+
 #### get function to work for multiple males and females 
 ## pick males w replacement, so 1 male can reproduce w multiple
 ## females
