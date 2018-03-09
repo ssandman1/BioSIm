@@ -1,6 +1,13 @@
-####read about rpois
 ### MAIN SIMULATION FUNCTION
 ## holds all parameters identified in project outline
+
+library(tidyverse)
+source("initialization.R")
+source("reproduce.R")
+source("DetermineSexFunction.R")
+source("getChildGenesFunction.R")
+
+
 mainSim<- function(dominant = FALSE,
                    average_litter_size,
                    initial_males = 100,
@@ -14,22 +21,24 @@ mainSim<- function(dominant = FALSE,
                    warner_death_prob = .7,
                    nonwarner_death_prob = .2,
                    hider_death_prob = 0,
-                   sim_gens =2,
+                   sim_gens = 2,
                    capacity = 2000) {
-  pop.init()
-  individual.init()
+  #pop.init()
+  #individual.init()
 
  
   for(i in 1:sim_gens){
-    reproduce()
-    attack()
-    cull ()
+    reproduce(average_litter_size, number_of_couples)
+    #attack()
+    #cull ()
     
     
   }
-  return (population data frame)
+  return(individuals)
   
-  }
+}
+
+mainSim(average_litter_size = average_litter_size, sim_gens = 5)
 
 
 
