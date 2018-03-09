@@ -51,8 +51,6 @@ getChildGenes <- function (mg,dg){
 }
 
 getChildGenes(mg=1,dg=1)
-
-
 #### reproduce 
 reproduce <- function (){
   ### pick number of females to breed

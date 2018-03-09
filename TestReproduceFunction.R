@@ -1,36 +1,32 @@
 #### REPRODUCE TEST FUNCTION
-library(tidyverse)
+# library(tidyverse)
 average_litter_size<- 5 
-actualsize<- sample(average_litter_size,1) 
+actualsize<- rpois(1,average_litter_size) 
 
 allfemales<-subset(individuals,sex=="F") ## all females from d.f.
 n<-nrow(allfemales)
 df <- allfemales[sample(1:n, size = 1, replace = FALSE), ] 
 ##randomly picking 1 female from data frame to be mom 
-momsID<-df[c("id")]%>% ### subsetting females id
-unlist()
-momID2<-as.character(c(momsID)) ### makes the female picked from 
-### data frame a character vector
+momsID<-df$id
+
 
 allmales<-subset(individuals,sex=="M") ### selecting all males
 ### from d.f.
 n<-nrow(allmales)
-ff <- allmales[sample(1:n, size = 1, replace = FALSE), ]
-### ramdomly picking 1 male
-dadsID<-ff[c("id")]%>% ### getting id of the male that was picked
-unlist()
-dadID2<-as.character(c(dadsID)) ### converting id to character
-### vector
+maleMate <- allmales[sample(1:n, size = 1, replace = FALSE), ]
+### ramdomly pick 1 male
+dadsID<-maleMate$id ### getting id of the male that was picked
 
-momID2
-dadID2
+
+
+
 
 ### Putting the information above into makelitter() (helper 
 ### function of reproduce() )
-makelitter<-function(momID=momID2,dadID=dadID2,
-                     actualsize=actualsize){
+makelitter<-function(momId,dadId, 
+                     actualsize) {
   
-  actualsize<-n
+  n<-actualsize
   
   mom <- subset(individuals, id == momId)
   dad<-subset(individuals,id == dadId)
@@ -46,19 +42,31 @@ makelitter<-function(momID=momID2,dadID=dadID2,
   
   dadGenes<- dad$warner
   momGenes <- mom$warner
-  warner<- numeric()
+  warner<- numeric(n)
   for(i in 1:n){
     warner[i]<- getChildGenes(mg=momGenes,dg=dadGenes)
   }
-  litter <- data.frame(id= as.character(ids), sex=sex, warner =
-                              warner, mom=kidMom, dad=kidDad)
-  individuals<- rbind(individuals,litter)
+  litter <- data.frame(id = as.character(ids), 
+                       sex = sex, 
+                       warner = warner,
+                       mom = kidMom,
+                       dad = kidDad,
+                       stringsAsFactors = FALSE)
+  individuals <<- rbind(individuals, litter)
 }
-makelitter() ### keep getting error stating that object 
-### dadId not found and I dont know why
 
+makelitter(momId = momsID,
+           dadId = dadsID,
+           actualsize=actualsize) 
 
-
+addToPop <- function(litter, currentPop) {
+  rbind(currentPop, litter)
+}
+#### get function to work for multiple males and females 
+## pick males w replacement, so 1 male can reproduce w multiple
+## females
+### make better names 
+### write out what each line is doing in future
 
 ### OUTLINE FOR ACTUALL REPRODUCE FUNCTION
 reproduce <- function (){
