@@ -1,4 +1,5 @@
 ## TODO  define popInit
+## TODO define relMatrixInit
 
 
 individualInit <- function(initial_males = 100,

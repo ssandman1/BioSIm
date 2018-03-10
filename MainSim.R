@@ -31,10 +31,11 @@ mainSim<- function(dominant = FALSE,
                                 initial_alt_males,
                                 initial_females,
                                 initial_alt_females)
+  maxId <- max(as.numeric(individuals$id))
   population <- popInit(individuals, sim_gens)
   
   # TODO:  relMatrixInit()
-  
+
   # go through the generations
   for (i in 1:sim_gens) {
     
@@ -43,12 +44,12 @@ mainSim<- function(dominant = FALSE,
     targetChildren <- birth_rate_natural * nrow(individuals)
     number_of_couples <- ceiling(targetChildren / average_litter_size)
     lst <- reproduce(average_litter_size, number_of_couples,
-                     individuals, relMatrix = NULL)
+                     individuals, relMatrix = NULL, maxId)
     individuals <- lst$individuals
     relMatrix <- lst$relMatrix
     popAdjustment <- lst$popAdjustment
+    maxId <- lst$maxId
     population[i + 1, ] <- colSums(rbind(population[i, ], popAdjustment))
-    
     ## cull
     #compute death rate
     dr <- deathRate(popSize = population[i + 1, 1],
@@ -63,6 +64,7 @@ mainSim<- function(dominant = FALSE,
     
     # TODO:  attack()
   }
+  
   return(population)
 }
 
