@@ -6,8 +6,17 @@ cull <- function(dr, individuals, relMatrix = NULL) {
   dead <- subset(individuals, dies)
   survivors <- subset(individuals, !dies)
   popAdjustment <- -popAdjust(dead$sex, dead$warner)
-  ## TODO:  update relMatrix
+  relMatrix <- cutForDeaths(relMatrix, individuals$id, dies)
   lst(individuals = survivors,
       relMatrix = relMatrix,
       popAdjustment = popAdjustment)
+}
+
+## cut down relationship matrix to account for culling;
+## use also after an attack
+## ids = individual$id
+## dies = logical vector that is TRUE if individual should be removed
+cutForDeaths <- function(relMatrix, ids, dies) {
+  survivorIds <- ids[!dies]
+  relMatrix[survivorIds, survivorIds]
 }

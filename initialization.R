@@ -1,6 +1,4 @@
-## TODO  define popInit
 ## TODO define relMatrixInit
-
 
 individualInit <- function(initial_males = 100,
                            initial_alt_males = 10,
@@ -49,3 +47,13 @@ popInit <- function(individuals, generations) {
   population[1, ] <- initialPop
   population
 }
+
+relMatrixInit <- function(individuals) {
+  n <- nrow(individuals)
+  relMatrix <- diag(1, nrow = n, ncol = n)
+  rownames(relMatrix) <- individuals$id
+  colnames(relMatrix) <- individuals$id
+  relMatrix
+}
+
+

@@ -1,10 +1,51 @@
 #### REPRODUCE FUNCTION
 
-makelitter<-function(momId,dadId, 
-                     actualsize,
-                     individuals,
-                     relMatrix = NULL,
-                     maxId) {
+extendWithLitter <- function(relMatrix, litter) {
+  
+  m <- nrow(relMatrix)
+  n <- nrow(litter)
+  
+  # identify mother and father:
+  mother <- litter$mom[1]
+  father <- litter$dad[1]
+  # extended will be the new relationship matrix:
+  extended <- matrix(0, nrow = m + n, ncol = m + n)
+  
+  # fill in upper left with old matrix:
+  extended[1:m, 1:m] <- relMatrix
+  
+  # relationship to oneself is 1, to one's siblings is 0.5
+  # so matrix for litter should have 1's on diagonal
+  # and 0.5's elsewhere:
+  litterMat <- matrix(0.5, n, n) + diag(0.5, n, n)
+  
+  # fill in lower right with litter matrix:
+  extended[(m + 1):(m + n), (m + 1):(m + n)] <- litterMat
+  
+  # determine relationship of the children with each previous
+  # member of the population:
+  relation <- 0.5 * (relMatrix[mother, ] + relMatrix[father, ])
+  
+  # construct matrix to become lower left, and fill in:
+  lowerLeft <- matrix(rep(relation, n), nrow = n, byrow = TRUE)
+  extended[(m + 1):(m + n), 1:m] <- lowerLeft
+  
+  # fill in the upper right:
+  extended[1:m, (m + 1):(m + n)] <- t(lowerLeft)
+  
+  # add row and column names:
+  rownames(extended) <- c(rownames(relMatrix), litter$id)
+  colnames(extended) <- rownames(extended)
+  
+  # return updated relationship matrix:
+  extended
+}
+
+makelitter <- function(momId,dadId, 
+                       actualsize,
+                       individuals,
+                       relMatrix = NULL,
+                       maxId) {
   n <- actualsize
   mom <- subset(individuals, id == momId)
   dad<-subset(individuals,id == dadId)
@@ -31,8 +72,7 @@ makelitter<-function(momId,dadId,
                        stringsAsFactors = FALSE)
   individuals <- rbind(individuals, litter)
   popAdjustment <- popAdjust(sex = sex, warner = warner)
-  
-  # TODO:  update relMatrix
+  relMatrix <- extendWithLitter(relMatrix, litter)
 
   results <- list(individuals = individuals,
                   relMatrix = relMatrix,
