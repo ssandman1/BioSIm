@@ -1,5 +1,4 @@
-#### REPRODUCE TEST FUNCTION
-# library(tidyverse)
+#### REPRODUCE FUNCTION
 
 makelitter<-function(momId,dadId, 
                      actualsize,
@@ -32,39 +31,54 @@ makelitter<-function(momId,dadId,
                        dad = kidDad,
                        stringsAsFactors = FALSE)
   individuals <- rbind(individuals, litter)
+  popAdjustment <- popAdjust(sex = sex, warner = warner)
   
   # TODO:  update relMatrix
 
   results <- list(individuals = individuals,
-                  relMatrix = relMatrix)
+                  relMatrix = relMatrix,
+                  popAdjustment = popAdjustment)
   results
 }
 
 reproduce <- function (average_litter_size, number_of_couples,
                        individuals, relMatrix = NULL) {
     
-  allfemales<-subset(individuals,sex=="F")
+  popAdjustment <- data.frame(populationSize = 0,
+                          males = 0, males0 = 0, males1 = 0, males2 = 0,
+                          females = 0, females0 = 0, females1 = 0, females2 = 0)
+  
+  allfemales<-subset(individuals,sex == "F")
   n <- nrow(allfemales)
   femaleMates <- allfemales[sample(1:n, size = number_of_couples, replace = FALSE), ] 
   momIDs<-femaleMates$id
-  allmales<-subset(individuals,sex=="M") ### selecting all males
-  maleMates <- allmales[sample(1:nrow(allmales),
-                               size = number_of_couples, 
-                               replace = TRUE), ]
-  dadIDs<-maleMates$id
-  
-  for(i in 1:number_of_couples){
-    actualsize <- 1 + rpois(1, average_litter_size - 1) 
-    lst <- makelitter(momId = momIDs[i],
-                      dadId = dadIDs[i],
-                      actualsize = actualsize,
-                      individuals = individuals,
-                      relMatrix = relMatrix)
-    individuals <- lst$individuals
-    relMatrix <- lst$relMatrix
+  allmales<-subset(individuals,sex == "M")
+  someMalesLeft <- nrow(allmales) > 0
+  if (someMalesLeft) {
+    maleMates <- allmales[sample(1:nrow(allmales),
+                                 size = number_of_couples, 
+                                 replace = TRUE), ]
+    dadIDs<-maleMates$id
+    
+    for(i in 1:number_of_couples){
+      actualsize <- 1 + rpois(1, average_litter_size - 1) 
+      lst <- makelitter(momId = momIDs[i],
+                        dadId = dadIDs[i],
+                        actualsize = actualsize,
+                        individuals = individuals,
+                        relMatrix = relMatrix)
+      individuals <- lst$individuals
+      relMatrix <- lst$relMatrix
+      popAdjustment <- colSums(rbind(popAdjustment,lst$popAdjustment))
+    }
+    
+    list(individuals = individuals,
+         relMatrix = relMatrix,
+         popAdjustment = popAdjustment)
+  } else {
+    list(individuals = individuals,
+         relMatrix = relMatrix,
+         popAdjustment = popAdjustment)
   }
-  
-  list(individuals = individuals,
-       relMatrix = relMatrix)
 }
 

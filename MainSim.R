@@ -1,11 +1,14 @@
 ### MAIN SIMULATION FUNCTION
 ## holds all parameters identified in project outline
 
-library(tidyverse)
 source("initialization.R")
+source("popAdjust.R")
 source("reproduce.R")
 source("DetermineSexFunction.R")
 source("getChildGenesFunction.R")
+source("deathRate.R")
+source("cull.R")
+
 
 
 mainSim<- function(dominant = FALSE,
@@ -28,12 +31,14 @@ mainSim<- function(dominant = FALSE,
                                 initial_alt_males,
                                 initial_females,
                                 initial_alt_females)
-  # popInit()
-  # relMatrixInit()
+  population <- popInit(individuals, sim_gens)
+  
+  # TODO:  relMatrixInit()
   
   # go through the generations
   for (i in 1:sim_gens) {
     
+    ## reproduce:
     # compute number of couples
     targetChildren <- birth_rate_natural * nrow(individuals)
     number_of_couples <- ceiling(targetChildren / average_litter_size)
@@ -41,17 +46,32 @@ mainSim<- function(dominant = FALSE,
                      individuals, relMatrix = NULL)
     individuals <- lst$individuals
     relMatrix <- lst$relMatrix
-    #attack()
-    #cull ()
+    popAdjustment <- lst$popAdjustment
+    population[i + 1, ] <- colSums(rbind(population[i, ], popAdjustment))
+    
+    ## cull
+    #compute death rate
+    dr <- deathRate(popSize = population[i + 1, 1],
+                    capacity, 
+                    death_rate_natural,
+                    birth_rate_natural)
+    lst <- cull(dr, individuals, relMatrix = NULL)
+    individuals <- lst$individuals
+    relMatrix <- lst$relMatrix
+    popAdjustment <- lst$popAdjustment
+    population[i + 1, ] <- colSums(rbind(population[i + 1, ], popAdjustment))
+    
+    # TODO:  attack()
   }
-  # for now just give back individuals
-  return(individuals)
+  return(population)
 }
 
-## the following command:
-## results <- mainSim(sim_gens = 100)
-## is taking about 32 seconds to run on my machine
-## hopefully it will get faster when we cull the population
+## how fast ist this?
+# > system.time(pop <- mainSim(sim_gens = 500))
+# user  system elapsed 
+# 23.432   0.770  24.220 
+
+## Not bad, but we must still work on attack and relMatrix
 
 
 
