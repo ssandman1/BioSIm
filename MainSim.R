@@ -1,6 +1,6 @@
 ### MAIN SIMULATION FUNCTION
 ## holds all parameters identified in project outline
-
+library(dplyr)
 source("initialization.R")
 source("popAdjust.R")
 source("reproduce.R")
@@ -8,8 +8,7 @@ source("DetermineSexFunction.R")
 source("getChildGenesFunction.R")
 source("deathRate.R")
 source("cull.R")
-
-
+source("attack.R")
 
 mainSim<- function(dominant = FALSE,
                    average_litter_size = 5,
@@ -19,9 +18,9 @@ mainSim<- function(dominant = FALSE,
                    initial_alt_females = 10,
                    birth_rate_natural = .05,
                    death_rate_natural = .02,
-                   prob_attack = .2,
+                   prob_attack = .1,
                    number_warned = 10,
-                   warner_death_prob = .7,
+                   warner_death_prob = .4,
                    nonwarner_death_prob = .2,
                    hider_death_prob = 0,
                    sim_gens = 2,
@@ -49,6 +48,7 @@ mainSim<- function(dominant = FALSE,
     popAdjustment <- lst$popAdjustment
     maxId <- lst$maxId
     population[i + 1, ] <- colSums(rbind(population[i, ], popAdjustment))
+    
     ## cull
     #compute death rate
     dr <- deathRate(popSize = population[i + 1, 1],
@@ -61,13 +61,28 @@ mainSim<- function(dominant = FALSE,
     popAdjustment <- lst$popAdjustment
     population[i + 1, ] <- colSums(rbind(population[i + 1, ], popAdjustment))
     
-    # TODO:  attack()
+    ## will there be an attack?
+    attackOccurs <- runif(1) < prob_attack
+    # handle attack, if needed:
+    if (attackOccurs) {
+      lst <- attack(
+        individuals,
+        number_warned,
+        warner_death_prob,
+        nonwarner_death_prob,
+        relMatrix,
+        dominant)
+      individuals <- lst$individuals
+      relMatrix <- lst$relMatrix
+      popAdjustment <- lst$popAdjustment
+      population[i + 1, ] <- colSums(rbind(population[i + 1, ], popAdjustment))
+    }
   }
   return(population)
 }
 
 ## How fast is this?
-
+set probability of attack to 0, and experiment:
 # > system.time(pop <- mainSim(sim_gens = 50))
 # user  system elapsed 
 # 2.240   0.760   3.002 
@@ -80,17 +95,28 @@ mainSim<- function(dominant = FALSE,
 # user  system elapsed 
 # 206.289  32.775 239.185 
 
-## Hmm, not so good, for three reasons:
+## Hmm, not so good, for two reasons:
 ##
-## 1.  Still have not incorporated predator attacks.
-## 2.  After 200 gnerations the population was still a bit 
+## 1.  After 200 generations the population was still a bit 
 ##     short of the carrying capacity of 2000, so as we move
 ##     forward in time it will take even longer to get through
 ##     each new generation.
-## 3.  We'll need quite a few generations (not sure how many, yet
+## 2.  We'll need quite a few generations (not sure how many, yet
 ##     but probably much more than 200), to get a sense of the long-term
 ##     distribution of warner genes in the population.
 ##
 ## So after we incorporate attacks we should do some code profiling and
 ## consider options for optimization.
+
+## Also we should alter the setup to permit the user to specify
+## how warners behave when the population is under attack.
+## For example:
+##   * warner = 1 has 50% chance to decide to warn
+##   * warners warn only other warners (with preference for warner = 2)
+##   * warners prioritize other warners but warn others if some limit is not
+##     yet reached
+##   * likelihoof of warning non-warners increases with percentage of warners
+##     in the population
+##   * etc.
+
 
