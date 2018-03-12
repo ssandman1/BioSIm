@@ -82,7 +82,7 @@ mainSim<- function(dominant = FALSE,
 }
 
 ## How fast is this?
-set probability of attack to 0, and experiment:
+## set probability of attack to 0, and experiment:
 # > system.time(pop <- mainSim(sim_gens = 50))
 # user  system elapsed 
 # 2.240   0.760   3.002 
