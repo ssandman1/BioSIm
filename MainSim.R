@@ -1,6 +1,7 @@
 ### MAIN SIMULATION FUNCTION
 ## holds all parameters identified in project outline
 library(dplyr)
+library(ggplot2)
 source("initialization.R")
 source("popAdjust.R")
 source("reproduce.R")
@@ -17,8 +18,8 @@ mainSim<- function(dominant = FALSE,
                    initial_females = 100,
                    initial_alt_females = 10,
                    birth_rate_natural = .05,
-                   death_rate_natural = .02,
-                   prob_attack = .1,
+                   death_rate_natural = .0,
+                   prob_attack = .2,
                    number_warned = 10,
                    warner_death_prob = .4,
                    nonwarner_death_prob = .2,
@@ -78,6 +79,15 @@ mainSim<- function(dominant = FALSE,
       population[i + 1, ] <- colSums(rbind(population[i + 1, ], popAdjustment))
     }
   }
+  altProp <- with(
+    population,
+    (2*(males2 + females2) + males1 + females1)/(males + females))
+  generation <- 0:sim_gens
+  df <- data.frame(generation, altProp)
+  p <-
+    ggplot(df, aes(x = generation, y = altProp)) +
+    geom_line()
+  print(p)
   return(population)
 }
 
