@@ -39,16 +39,21 @@ mainSim<- function(dominant = FALSE,
   for (i in 1:sim_gens) {
     
     ## reproduce:
-    # compute number of couples
-    targetChildren <- birth_rate_natural * nrow(individuals)
-    number_of_couples <- ceiling(targetChildren / average_litter_size)
-    lst <- reproduce(average_litter_size, number_of_couples,
-                     individuals, relMatrix = relMatrix, maxId)
-    individuals <- lst$individuals
-    relMatrix <- lst$relMatrix
-    popAdjustment <- lst$popAdjustment
-    maxId <- lst$maxId
-    population[i + 1, ] <- colSums(rbind(population[i, ], popAdjustment))
+    if (population$males[i] > 0 & population$females[i] > 0) {
+      # compute number of couples
+      targetChildren <- birth_rate_natural * nrow(individuals)
+      number_of_couples <- ceiling(targetChildren / average_litter_size)
+      # make the new generation:
+      lst <- reproduce(average_litter_size, number_of_couples,
+                       individuals, relMatrix = relMatrix, maxId)
+      individuals <- lst$individuals
+      relMatrix <- lst$relMatrix
+      popAdjustment <- lst$popAdjustment
+      maxId <- lst$maxId
+      population[i + 1, ] <- colSums(rbind(population[i, ], popAdjustment))
+    } else {
+      population[i + 1, ] <- population[i, ]
+    }
     
     ## cull
     #compute death rate
@@ -92,30 +97,12 @@ mainSim<- function(dominant = FALSE,
 }
 
 ## How fast is this?
-## set probability of attack to 0, and experiment:
-# > system.time(pop <- mainSim(sim_gens = 50))
+# > system.time(pop <- mainSim(sim_gens = 800))
 # user  system elapsed 
-# 2.240   0.760   3.002 
-# > View(pop)
-# > system.time(pop <- mainSim(sim_gens = 100))
-# user  system elapsed 
-# 30.011   5.624  35.655 
-# > View(pop)
-# > system.time(pop <- mainSim(sim_gens = 200))
-# user  system elapsed 
-# 206.289  32.775 239.185 
+# 50.907   5.992  56.933 
 
-## Hmm, not so good, for two reasons:
-##
-## 1.  After 200 generations the population was still a bit 
-##     short of the carrying capacity of 2000, so as we move
-##     forward in time it will take even longer to get through
-##     each new generation.
-## 2.  We'll need quite a few generations (not sure how many, yet
-##     but probably much more than 200), to get a sense of the long-term
-##     distribution of warner genes in the population.
-##
-## So after we incorporate attacks we should do some code profiling and
+## Once everyting is working as we like,
+## we should do some code profiling and
 ## consider options for optimization.
 
 ## Also we should alter the setup to permit the user to specify
