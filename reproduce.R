@@ -1,47 +1,82 @@
 #### REPRODUCE FUNCTION
 
-# extendWithLitters <- function(relMatrix, momIds, dadIds) {
-#   
-#   m <- nrow(relMatrix)
-#   n <- nrow(litter)
-#   
-#   # identify mother and father:
-#   mother <- litter$mom[1]
-#   father <- litter$dad[1]
-#   # extended will be the new relationship matrix:
-#   extended <- matrix(0, nrow = m + n, ncol = m + n)
-#   
-#   # fill in upper left with old matrix:
-#   extended[1:m, 1:m] <- relMatrix
-#   
-#   # relationship to oneself is 1, to one's siblings is 0.5
-#   # so matrix for litter should have 1's on diagonal
-#   # and 0.5's elsewhere:
-#   litterMat <- matrix(0.5, n, n) + diag(0.5, n, n)
-#   
-#   # fill in lower right with litter matrix:
-#   extended[(m + 1):(m + n), (m + 1):(m + n)] <- litterMat
-#   
-#   # determine relationship of the children with each previous
-#   # member of the population:
-#   relation <- 0.5 * (relMatrix[mother, ] + relMatrix[father, ])
-#   
-#   # construct matrix to become lower left, and fill in:
-#   lowerLeft <- matrix(rep(relation, n), nrow = n, byrow = TRUE)
-#   extended[(m + 1):(m + n), 1:m] <- lowerLeft
-#   
-#   # fill in the upper right:
-#   extended[1:m, (m + 1):(m + n)] <- t(lowerLeft)
-#   
-#   # add row and column names:
-#   rownames(extended) <- c(rownames(relMatrix), litter$id)
-#   colnames(extended) <- rownames(extended)
-#   
-#   # return updated relationship matrix:
-#   extended
+# Function to match males with females:
+# in this version each female randomly selects
+# one of the avialable males
+makeMatches <- function(individuals, number_of_couples) {
+  females <- subset(individuals, sex == "F")
+  breedingFemales <- females[sample(
+    1:nrow(females),
+    size = number_of_couples,
+    replace = FALSE), ]
+  males <- subset(individuals,sex == "M")
+  chosenMales <- males[sample(
+    1:nrow(males),
+    size = nrow(breedingFemales),
+    replace = TRUE), ]
+  list(females = breedingFemales, males = chosenMales)
+}
+
+# alternative mating function:
+# female warner = 0 and female warner = 1 prefs can be set
+# female warner = 1 picks a mate randomly
+# makeMatches <- function(individuals, number_of_couples) {
+#   breedingFemales <-
+#     individuals %>% 
+#     filter(sex == "F") %>% 
+#     sample_n(number_of_couples, replace = FALSE) %>% 
+#     arrange(warner)
+#   warnerf <- factor(breedingFemales$warner, levels = 0:2)
+#   femaleTallies <- table(warnerf)
+#   males <- individuals %>% 
+#     filter(sex == "M") %>% 
+#     arrange(warner)
+#   warnerm <- factor(males$warner, levels = 0:2)
+#   maleTallies <- table(warnerm)
+#   prefs0 <- c(
+#     rep(1, times = maleTallies["0"]),
+#     rep(5, times = maleTallies["1"]),
+#     rep(10, times = maleTallies["2"])
+#   )
+#   prefs2 <- c(
+#     rep(10, times = maleTallies["0"]),
+#     rep(1, times = maleTallies["1"]),
+#     rep(1, times = maleTallies["2"])
+#   )
+#   chosenMales <- data.frame(
+#     id = character(number_of_couples),
+#     sex = character(number_of_couples),
+#     warner = numeric(number_of_couples),
+#     mom = character(number_of_couples),
+#     dad = character(number_of_couples),
+#     stringsAsFactors = FALSE
+#   )
+#   fems0 <- femaleTallies["0"]
+#   if (fems0 > 0) {
+#     chosenMales[1:fems0, ] <-
+#       males %>% 
+#       sample_n(fems0, weight = prefs0, replace = TRUE)
+#   }
+#   fems1 <- femaleTallies["1"]
+#   if (fems1 > 0) {
+#     chosenMales[(fems0 + 1) : (fems0 + fems1), ] <-
+#       males %>% 
+#       sample_n(fems1, replace = TRUE)
+#   }
+#   fems2 <- femaleTallies["2"]
+#   if (fems2 > 0) {
+#     chosenMales[(fems0 + fems1 + 1) : number_of_couples, ] <-
+#       males %>% 
+#       sample_n(fems2, weight = prefs2, replace = TRUE)
+#   }
+#   results <- list(females = breedingFemales, males = chosenMales)
+#   #print(results)
+#   results
 # }
 
-makelitter <- function(mom, dad, actualsize, lastId) {
+
+## function to make a single litter
+makeLitter <- function(mom, dad, actualsize, lastId) {
   
   n <- actualsize
   momId <- mom$id
@@ -70,22 +105,17 @@ makelitter <- function(mom, dad, actualsize, lastId) {
 reproduce <- function (average_litter_size, number_of_couples,
                        individuals, relMatrix = NULL, maxId) {
   
-  # To compute next row of the populaton data frame: 
+  ## To compute next row of the populaton data frame: 
   popAdjustment <- data.frame(populationSize = 0,
                           males = 0, males0 = 0, males1 = 0, males2 = 0,
                           females = 0, females0 = 0, females1 = 0, females2 = 0)
-  allfemales <- subset(individuals, sex == "F")
-  numberFemales <- nrow(allfemales)
-  femaleMates <- allfemales[sample(
-    1:numberFemales,
-    size = number_of_couples,
-    replace = FALSE), ] 
+  
+  ## get the pairs:
+  couples <- makeMatches(individuals, number_of_couples)
+  femaleMates <- couples$females
+  maleMates <- couples$males
+  
   momIDs <- femaleMates$id
-  allmales <- subset(individuals,sex == "M")
-  maleMates <- allmales[sample(
-    1:nrow(allmales),
-    size = number_of_couples, 
-    replace = TRUE), ]
   dadIDs <- maleMates$id
   litterSizes <- 1 + rpois(number_of_couples, average_litter_size - 1)
   totalKids <- sum(litterSizes)
@@ -121,10 +151,10 @@ reproduce <- function (average_litter_size, number_of_couples,
     
     ## get the next litter:
     n <- litterSizes[i]
-    litter <- makelitter(mom = femaleMates[i, ],
-                      dad = maleMates[i, ],
-                      actualsize = n,
-                      lastId = lastId)
+    litter <- makeLitter(mom = femaleMates[i, ],
+                         dad = maleMates[i, ],
+                         actualsize = n,
+                         lastId = lastId)
     
     ## enter into new individual data frame:
     extIndividuals[(m + 1):(m + n), ] <- litter
