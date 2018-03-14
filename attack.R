@@ -31,15 +31,12 @@ getDeathProb <- function(
     warnerId <- warners[1]
     warners <- warners[-1]
     hideable <- hideable[hideable != warnerId]
-    warned <- data.frame(
-      id = hideable,
-      degree = relMatrix[warnerId, hideable]
-    ) %>%
-      filter(degree >= 0.25) %>%
-      arrange(desc(degree)) %>%
-      head(n = number_warned)
-    if (nrow(warned) > 0) {
-      deathProb[id %in% warned$id] <- 0
+    warnable <- hideable[relMatrix[warnerId, hideable] >= 0.25]
+    warned <-
+      head(warnable[order(relMatrix[warnerId, warnable], decreasing = TRUE)], 
+           number_warned)
+    if (length(warned) > 0) {
+      deathProb[id %in% warned] <- 0
       deathProb[id == warnerId] <- warner_death_prob
     } else {
       deathProb[id == warnerId] <- 0

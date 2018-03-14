@@ -18,28 +18,32 @@ makeMatches <- function(individuals, number_of_couples) {
 }
 
 # alternative mating function:
-# female warner = 0 and female warner = 1 prefs can be set
-# female warner = 1 picks a mate randomly
+# female warner-preferences can be set
 # makeMatches <- function(individuals, number_of_couples) {
 #   breedingFemales <-
-#     individuals %>% 
-#     filter(sex == "F") %>% 
-#     sample_n(number_of_couples, replace = FALSE) %>% 
+#     individuals %>%
+#     filter(sex == "F") %>%
+#     sample_n(number_of_couples, replace = FALSE) %>%
 #     arrange(warner)
 #   warnerf <- factor(breedingFemales$warner, levels = 0:2)
 #   femaleTallies <- table(warnerf)
-#   males <- individuals %>% 
-#     filter(sex == "M") %>% 
+#   males <- individuals %>%
+#     filter(sex == "M") %>%
 #     arrange(warner)
 #   warnerm <- factor(males$warner, levels = 0:2)
 #   maleTallies <- table(warnerm)
 #   prefs0 <- c(
 #     rep(1, times = maleTallies["0"]),
-#     rep(5, times = maleTallies["1"]),
-#     rep(10, times = maleTallies["2"])
+#     rep(1, times = maleTallies["1"]),
+#     rep(1, times = maleTallies["2"])
+#   )
+#   prefs1 <- c(
+#     rep(1, times = maleTallies["0"]),
+#     rep(1, times = maleTallies["1"]),
+#     rep(1, times = maleTallies["2"])
 #   )
 #   prefs2 <- c(
-#     rep(10, times = maleTallies["0"]),
+#     rep(1, times = maleTallies["0"]),
 #     rep(1, times = maleTallies["1"]),
 #     rep(1, times = maleTallies["2"])
 #   )
@@ -54,19 +58,19 @@ makeMatches <- function(individuals, number_of_couples) {
 #   fems0 <- femaleTallies["0"]
 #   if (fems0 > 0) {
 #     chosenMales[1:fems0, ] <-
-#       males %>% 
+#       males %>%
 #       sample_n(fems0, weight = prefs0, replace = TRUE)
 #   }
 #   fems1 <- femaleTallies["1"]
 #   if (fems1 > 0) {
 #     chosenMales[(fems0 + 1) : (fems0 + fems1), ] <-
-#       males %>% 
-#       sample_n(fems1, replace = TRUE)
+#       males %>%
+#       sample_n(fems1, weight = prefs1, replace = TRUE)
 #   }
 #   fems2 <- femaleTallies["2"]
 #   if (fems2 > 0) {
 #     chosenMales[(fems0 + fems1 + 1) : number_of_couples, ] <-
-#       males %>% 
+#       males %>%
 #       sample_n(fems2, weight = prefs2, replace = TRUE)
 #   }
 #   results <- list(females = breedingFemales, males = chosenMales)

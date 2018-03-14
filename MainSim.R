@@ -14,9 +14,9 @@ source("attack.R")
 mainSim<- function(dominant = FALSE,
                    average_litter_size = 5,
                    initial_males = 100,
-                   initial_alt_males = 10,
+                   initial_alt_males = 25,
                    initial_females = 100,
-                   initial_alt_females = 10,
+                   initial_alt_females = 25,
                    birth_rate_natural = .05,
                    death_rate_natural = .0,
                    prob_attack = .2,
@@ -66,6 +66,7 @@ mainSim<- function(dominant = FALSE,
     relMatrix <- lst$relMatrix
     popAdjustment <- lst$popAdjustment
     population[i + 1, ] <- colSums(rbind(population[i + 1, ], popAdjustment))
+    
     
     ## will there be an attack?
     attackOccurs <- runif(1) < prob_attack
