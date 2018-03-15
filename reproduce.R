@@ -192,7 +192,7 @@ reproduce <- function (average_litter_size, number_of_couples,
   ## return results:
   list(individuals = extIndividuals,
        relMatrix = extRelMat,
-       maxId = maxId,
+       maxId = lastId,
        popAdjustment = popAdjustment)
   
 }
