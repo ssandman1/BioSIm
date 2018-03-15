@@ -149,7 +149,7 @@ attack <- function(
   survivors <- subset(individuals, !dies)
   popAdjustment <- -popAdjust(dead$sex, dead$warner)
   relMatrix <- cutForDeaths(relMatrix, individuals$id, dies)
-  lst(
+  list(
     individuals = survivors,
     relMatrix = relMatrix,
     popAdjustment = popAdjustment

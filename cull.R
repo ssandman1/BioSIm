@@ -7,7 +7,7 @@ cull <- function(dr, individuals, relMatrix = NULL) {
   survivors <- subset(individuals, !dies)
   popAdjustment <- -popAdjust(dead$sex, dead$warner)
   relMatrix <- cutForDeaths(relMatrix, individuals$id, dies)
-  lst(individuals = survivors,
+  list(individuals = survivors,
       relMatrix = relMatrix,
       popAdjustment = popAdjustment)
 }
