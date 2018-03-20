@@ -3,7 +3,10 @@
 getChildGenes <- function (mg,dg){
   parentsum<-mg+dg
   if (parentsum ==0) {
-    return
+    return(0)
+  }
+  if (parentsum==1) {
+    return(sample(c(1,0),size=1,prob=c(.5,.5)))
   }
   if (parentsum ==4) {
     return(0)
